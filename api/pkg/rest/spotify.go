@@ -43,7 +43,7 @@ func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Failed to Retrieve Token", http.StatusInternalServerError)
 		return
 	}
-	session_id, err := api.Session_Manager.SetSession(token)
+	session_id, err := api.Session_Manager.SetSpotifySession(token)
 	if err != nil {
 		http.Error(w, "Failed to Set Session", http.StatusInternalServerError)
 		return
