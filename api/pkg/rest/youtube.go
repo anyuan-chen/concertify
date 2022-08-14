@@ -8,13 +8,19 @@ import (
 	"os"
 	"time"
 
-	spotifyauth "github.com/zmb3/spotify/v2/auth"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
-var scopes = spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate, spotifyauth.ScopeUserTopRead, spotifyauth.ScopeUserLibraryModify, spotifyauth.ScopePlaylistModifyPublic, spotifyauth.ScopePlaylistModifyPrivate, spotifyauth.ScopeUserLibraryRead)
-var auth = spotifyauth.New(spotifyauth.WithRedirectURL(os.Getenv("SPOTIFY_REDIRECT_URI")), scopes)
+var GoogleConfig = &oauth2.Config{
+	ClientID:     os.Getenv("GOOGLE_ID"),
+	ClientSecret: os.Getenv("GOOGLE_SECRET"),
+	Endpoint:     google.Endpoint,
+	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
+	Scopes:       []string{""},
+}
 
-func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
+func (api *ConcertifyAPI) YoutubeLogin(w http.ResponseWriter, r *http.Request) {
 	expiration := time.Now().Add(20 * time.Minute)
 	state := make(map[string]interface{})
 	randomizedState := make([]byte, 16)
@@ -26,29 +32,31 @@ func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	encoded_json := base64.URLEncoding.EncodeToString(json)
-	url := auth.AuthURL(encoded_json)
+	url := GoogleConfig.AuthCodeURL(encoded_json)
 	cookie := http.Cookie{Name: "oauthstate", Value: encoded_json, Expires: expiration}
 	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request) {
+func (api *ConcertifyAPI) YoutubeCallback(w http.ResponseWriter, r *http.Request) {
 	state, err := r.Cookie("oauthstate")
 	if err != nil || r.FormValue("state") != state.Value {
-		http.Error(w, "Bad state", http.StatusBadRequest)
-		return
+		http.Error(w, "Bad OAuth State", http.StatusInternalServerError)
 	}
-	token, err := auth.Token(r.Context(), state.Value, r)
+	token, err := GoogleConfig.Exchange(r.Context(), state.Value)
 	if err != nil {
 		http.Error(w, "Failed to Retrieve Token", http.StatusInternalServerError)
 		return
 	}
-	session_id, err := api.Session_Manager.SetSpotifySession(token)
+	session_id, err := r.Cookie("session_id")
+	if err != nil {
+		http.Error(w, "No Session Cookie", http.StatusInternalServerError)
+		return
+	}
+	err = api.Session_Manager.SetYoutubeSession(session_id.Value, token)
 	if err != nil {
 		http.Error(w, "Failed to Set Session", http.StatusInternalServerError)
 		return
 	}
-	cookie := http.Cookie{Name: "session_id", Value: session_id, SameSite: http.SameSiteNoneMode, Secure: true}
-	http.SetCookie(w, &cookie)
 	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusPermanentRedirect)
 }
