@@ -16,7 +16,7 @@ var GoogleConfig = &oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_ID"),
 	ClientSecret: os.Getenv("GOOGLE_SECRET"),
 	Endpoint:     google.Endpoint,
-	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),
+	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
 	Scopes:       []string{""},
 }
 

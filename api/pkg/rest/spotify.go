@@ -12,7 +12,7 @@ import (
 )
 
 var scopes = spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate, spotifyauth.ScopeUserTopRead, spotifyauth.ScopeUserLibraryModify, spotifyauth.ScopePlaylistModifyPublic, spotifyauth.ScopePlaylistModifyPrivate, spotifyauth.ScopeUserLibraryRead)
-var auth = spotifyauth.New(spotifyauth.WithRedirectURL(os.Getenv("SPOTIFY_REDIRECT_URL")), scopes)
+var auth = spotifyauth.New(spotifyauth.WithRedirectURL(os.Getenv("SPOTIFY_REDIRECT_URI")), scopes)
 
 func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
 	expiration := time.Now().Add(20 * time.Minute)
