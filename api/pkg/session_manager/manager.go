@@ -30,6 +30,7 @@ func (m *Session_Manager) SetSpotifySession(session *oauth2.Token) (string, erro
 		if err != nil {
 			return "", err
 		} else if session == nil {
+			m.sessions[uid] = make(map[string]*oauth2.Token)
 			m.sessions[uid]["spotify"] = session
 			break
 		}

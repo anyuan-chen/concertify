@@ -6,8 +6,8 @@ type ConcertifyAPI struct {
 	Session_Manager *session_manager.Session_Manager
 }
 
-func NewConcertifyAPI(session_manager session_manager.Session_Manager) ConcertifyAPI {
+func NewConcertifyAPI(session_manager *session_manager.Session_Manager) ConcertifyAPI {
 	return ConcertifyAPI{
-		Session_Manager: &session_manager,
+		Session_Manager: session_manager,
 	}
 }
