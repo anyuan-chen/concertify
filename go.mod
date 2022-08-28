@@ -4,7 +4,10 @@ go 1.18
 
 require golang.org/x/oauth2 v0.0.0-20220808172628-8227340efae7
 
-require cloud.google.com/go/compute v1.8.0 // indirect
+require (
+	cloud.google.com/go/compute v1.8.0 // indirect
+	github.com/zmb3/spotify v1.3.0 // indirect
+)
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

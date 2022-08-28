@@ -2,10 +2,13 @@ package main
 
 import (
 	"net/http"
+	"os"
 
+	"github.com/anyuan-chen/concertify/api/pkg/concertify"
 	"github.com/anyuan-chen/concertify/api/pkg/rest"
 	"github.com/anyuan-chen/concertify/api/pkg/session_manager"
 	"github.com/gorilla/mux"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
 type Server struct {
@@ -13,8 +16,12 @@ type Server struct {
 }
 
 func main() {
+	auth := spotifyauth.New(spotifyauth.WithRedirectURL(os.Getenv("REDIRECT_URL")), spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate))
+	concertify_core := concertify.NewConcertifyCore(auth)
+
 	session_manager := session_manager.CreateManager()
-	concertify_api := rest.NewConcertifyAPI(session_manager)
+	concertify_api := rest.NewConcertifyAPI(session_manager, &concertify_core)
+
 	r := mux.NewRouter()
 	r.HandleFunc("/spotify/login", concertify_api.SpotifyLogin)
 	r.HandleFunc("/spotify/callback", concertify_api.SpotifyCallback)
