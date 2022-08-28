@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -10,6 +11,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/youtube/v3"
 )
 
 var GoogleConfig = &oauth2.Config{
@@ -17,7 +19,7 @@ var GoogleConfig = &oauth2.Config{
 	ClientSecret: os.Getenv("GOOGLE_SECRET"),
 	Endpoint:     google.Endpoint,
 	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
-	Scopes:       []string{""},
+	Scopes:       []string{youtube.YoutubepartnerScope},
 }
 
 func (api *ConcertifyAPI) YoutubeLogin(w http.ResponseWriter, r *http.Request) {
@@ -42,10 +44,15 @@ func (api *ConcertifyAPI) YoutubeCallback(w http.ResponseWriter, r *http.Request
 	state, err := r.Cookie("oauthstate")
 	if err != nil || r.FormValue("state") != state.Value {
 		http.Error(w, "Bad OAuth State", http.StatusInternalServerError)
+		return
 	}
-	token, err := GoogleConfig.Exchange(r.Context(), state.Value)
+	// decoded_string, err := base64.URLEncoding.DecodeString(state.Value)
+	// if err != nil {
+	// 	http.Error(w, "Failed to decode"+err.Error(), http.StatusInternalServerError)
+	// }
+	token, err := GoogleConfig.Exchange(context.Background(), r.FormValue("code"))
 	if err != nil {
-		http.Error(w, "Failed to Retrieve Token", http.StatusInternalServerError)
+		http.Error(w, "Failed to Retrieve Token"+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	session_id, err := r.Cookie("session_id")

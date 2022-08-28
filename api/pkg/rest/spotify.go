@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-
+	
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
@@ -22,7 +22,7 @@ func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
 	state["random"] = randomizedState
 	json, err := json.Marshal(state)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "A JSON Encoding error has been encountered.", http.StatusInternalServerError)
 		return
 	}
 	encoded_json := base64.URLEncoding.EncodeToString(json)
@@ -35,20 +35,17 @@ func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
 func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request) {
 	state, err := r.Cookie("oauthstate")
 	if err != nil || r.FormValue("state") != state.Value {
-		http.Error(w, "Bad state", http.StatusBadRequest)
-		return
+		http.Error(w, "Bad OAuth State", http.StatusInternalServerError)
 	}
 	token, err := auth.Token(r.Context(), state.Value, r)
 	if err != nil {
 		http.Error(w, "Failed to Retrieve Token", http.StatusInternalServerError)
-		return
 	}
-	session_id, err := api.Session_Manager.SetSpotifySession(token)
+	id, err := api.Session_Manager.SetSpotifySession(token)
 	if err != nil {
-		http.Error(w, "Failed to Set Session", http.StatusInternalServerError)
-		return
+		http.Error(w, "Problem with the session management service: "+err.Error(), http.StatusInternalServerError)
 	}
-	cookie := http.Cookie{Name: "session_id", Value: session_id, SameSite: http.SameSiteNoneMode, Secure: true}
+	cookie := http.Cookie{Name: "session_id", Value: id, SameSite: http.SameSiteNoneMode, Secure: true}
 	http.SetCookie(w, &cookie)
-	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusPermanentRedirect)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/list", http.StatusPermanentRedirect)
 }
