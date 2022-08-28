@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/youtube/v3"
 )
 
 var GoogleConfig = &oauth2.Config{
@@ -18,7 +19,7 @@ var GoogleConfig = &oauth2.Config{
 	ClientSecret: os.Getenv("GOOGLE_SECRET"),
 	Endpoint:     google.Endpoint,
 	RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
-	Scopes:       []string{"https://www.googleapis.com/auth/youtubepartner"},
+	Scopes:       []string{youtube.YoutubepartnerScope},
 }
 
 func (api *ConcertifyAPI) YoutubeLogin(w http.ResponseWriter, r *http.Request) {

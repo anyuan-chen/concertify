@@ -7,16 +7,19 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (c *ConcertifyCore) GetPopularityScore(ctx context.Context, token *oauth2.Token) error {
+func (c *ConcertifyCore) GetAllPlaylists(ctx context.Context, token *oauth2.Token) (*spotify.SimplePlaylistPage, error) {
 	client := spotify.New(c.Authenticator.Client(context.Background(), token))
-	tracks, err := client.CurrentUsersTopTracks(context.Background(), spotify.Limit(50))
+	lists, err := client.CurrentUsersPlaylists(context.Background())
 	if err != nil {
-		return err
+		return nil, err
 	}
-	var average float64 = 0
-	for _, track := range tracks.Tracks {
-		average += float64(track.Popularity)
+	return lists, nil
+}
+func (c *ConcertifyCore) GetPlaylist(ctx context.Context, token *oauth2.Token, playlistId spotify.ID) (*spotify.FullPlaylist, error) {
+	client := spotify.New(c.Authenticator.Client(context.Background(), token))
+	playlist, err := client.GetPlaylist(context.Background(), playlistId)
+	if err != nil {
+		return nil, err
 	}
-	average = average / (float64(len(tracks.Tracks)))
-	return nil
+	return playlist, nil
 }
