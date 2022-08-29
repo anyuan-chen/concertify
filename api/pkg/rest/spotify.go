@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-	
+
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
@@ -45,7 +45,8 @@ func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		http.Error(w, "Problem with the session management service: "+err.Error(), http.StatusInternalServerError)
 	}
-	cookie := http.Cookie{Name: "session_id", Value: id, SameSite: http.SameSiteNoneMode, Secure: true}
+	cookie := http.Cookie{Name: "session_id", Path: "/", Value: id, Secure: true, Expires: time.Now().Add(time.Hour * 24 * 7)}
 	http.SetCookie(w, &cookie)
-	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/list", http.StatusPermanentRedirect)
+
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/select", http.StatusPermanentRedirect)
 }
