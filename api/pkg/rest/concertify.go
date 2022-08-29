@@ -3,7 +3,9 @@ package rest
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/zmb3/spotify/v2"
 )
@@ -11,22 +13,32 @@ import (
 func (api *ConcertifyAPI) GetAllPlaylists(w http.ResponseWriter, r *http.Request) {
 	session_id_cookie, err := r.Cookie("session_id")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Println(err)
+		http.Error(w, err.Error()+"bad cookie", http.StatusUnauthorized)
 		return
 	}
 	session_id := session_id_cookie.Value
 	spotify_token, err := api.Session_Manager.GetSpotifySession(session_id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Println(err)
+		http.Error(w, err.Error()+"session manager can't find", http.StatusUnauthorized)
 		return
 	}
-	playlists, err := api.ConcertifyCore.GetAllPlaylists(context.Background(), spotify_token)
+	pageNumber, err := strconv.Atoi(r.FormValue("page"))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
+		http.Error(w, err.Error()+"bad page number", http.StatusBadRequest)
+		return
+	}
+	playlists, err := api.ConcertifyCore.GetAllPlaylists(context.Background(), spotify_token, pageNumber)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error()+"failed to retrieve", http.StatusInternalServerError)
 		return
 	}
 	playlists_json, err := json.Marshal(playlists)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

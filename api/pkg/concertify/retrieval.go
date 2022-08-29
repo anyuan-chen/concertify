@@ -7,9 +7,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func (c *ConcertifyCore) GetAllPlaylists(ctx context.Context, token *oauth2.Token) (*spotify.SimplePlaylistPage, error) {
+func (c *ConcertifyCore) GetAllPlaylists(ctx context.Context, token *oauth2.Token, page int) (*spotify.SimplePlaylistPage, error) {
+	pageSize := 20
 	client := spotify.New(c.Authenticator.Client(context.Background(), token))
-	lists, err := client.CurrentUsersPlaylists(context.Background())
+	lists, err := client.CurrentUsersPlaylists(context.Background(), spotify.Offset(page*pageSize))
 	if err != nil {
 		return nil, err
 	}

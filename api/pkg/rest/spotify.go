@@ -11,7 +11,7 @@ import (
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
-var scopes = spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate, spotifyauth.ScopeUserTopRead, spotifyauth.ScopeUserLibraryModify, spotifyauth.ScopePlaylistModifyPublic, spotifyauth.ScopePlaylistModifyPrivate, spotifyauth.ScopeUserLibraryRead)
+var scopes = spotifyauth.WithScopes(spotifyauth.ScopeUserReadPrivate, spotifyauth.ScopeUserTopRead, spotifyauth.ScopeUserLibraryModify, spotifyauth.ScopePlaylistModifyPublic, spotifyauth.ScopePlaylistModifyPrivate, spotifyauth.ScopeUserLibraryRead, spotifyauth.ScopePlaylistReadPrivate)
 var auth = spotifyauth.New(spotifyauth.WithRedirectURL(os.Getenv("SPOTIFY_REDIRECT_URI")), scopes)
 
 func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
@@ -25,6 +25,7 @@ func (api *ConcertifyAPI) SpotifyLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "A JSON Encoding error has been encountered.", http.StatusInternalServerError)
 		return
 	}
+
 	encoded_json := base64.URLEncoding.EncodeToString(json)
 	url := auth.AuthURL(encoded_json)
 	cookie := http.Cookie{Name: "oauthstate", Value: encoded_json, Expires: expiration}
@@ -36,17 +37,24 @@ func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request
 	state, err := r.Cookie("oauthstate")
 	if err != nil || r.FormValue("state") != state.Value {
 		http.Error(w, "Bad OAuth State", http.StatusInternalServerError)
+		return
 	}
 	token, err := auth.Token(r.Context(), state.Value, r)
 	if err != nil {
 		http.Error(w, "Failed to Retrieve Token", http.StatusInternalServerError)
+		return
 	}
-	id, err := api.Session_Manager.SetSpotifySession(token)
+	user_id, err := api.Session_Manager.CreateSession()
+	if err != nil {
+		http.Error(w, "Failed to Create Session", http.StatusInternalServerError)
+		return
+	}
+	err = api.Session_Manager.SetSpotifySession(user_id, token)
 	if err != nil {
 		http.Error(w, "Problem with the session management service: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
-	cookie := http.Cookie{Name: "session_id", Path: "/", Value: id, Secure: true, Expires: time.Now().Add(time.Hour * 24 * 7)}
+	cookie := http.Cookie{Name: "session_id", Path: "/", Value: user_id, Secure: true, Expires: time.Now().Add(time.Hour * 24 * 7)}
 	http.SetCookie(w, &cookie)
-
 	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/select", http.StatusPermanentRedirect)
 }
