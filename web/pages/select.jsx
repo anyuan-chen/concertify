@@ -3,12 +3,14 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 import SelectPlaylist from "../components/selectplaylist";
+import { useState } from "react";
 
 const Select = () => {
   const fetcher = (url, args) => fetch(url, args).then((res) => res.json());
+  const [page, setPage] = useState(1);
   const { data, error } = useSWR(
     [
-      process.env.NEXT_PUBLIC_BACKEND_URL + "/api/playlists",
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/playlists?page=${page}`,
       {
         credentials: "include",
         mode: "cors",
@@ -20,7 +22,9 @@ const Select = () => {
   if (!data) return "Loading...";
   return (
     <div className="flex flex-col gap-y-8">
-      <h1 className="font-medium text-6xl">Select your playlist</h1>
+      <div className="flex">
+        <h1 className="font-medium text-6xl">Select your playlist</h1>
+      </div>
       <div className="flex flex-wrap gap-8">
         {data?.items?.map((playlist) => (
           <button>
@@ -31,6 +35,30 @@ const Select = () => {
             ></SelectPlaylist>
           </button>
         ))}
+      </div>
+      <div className="flex justify-between">
+        <button
+          onClick={() => setPage(page - 1)}
+          disabled={page === 0}
+          className={`px-8 py-2 border  ${
+            page === 0
+              ? "text-gray-500 border-gray-500"
+              : "text-black border-black"
+          }`}
+        >
+          Prev Page
+        </button>
+        <button
+          onClick={() => setPage(page + 1)}
+          className={`px-8 py-2 border border-black ${
+            Math.ceil(data.total / 20) - 1 === page
+              ? "text-gray-500 border-gray-500"
+              : "text-black border-black"
+          }`}
+          disabled={Math.ceil(data.total / 20) - 1 === page}
+        >
+          Next Page
+        </button>
       </div>
     </div>
   );
