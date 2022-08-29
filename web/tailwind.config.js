@@ -1,11 +1,17 @@
 /** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
   ],
+  prefix: "",
+  important: false,
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ["Neue Montreal", "ui-sans-serif", "system-ui"],
+    },
   },
-  plugins: [],
-}
+  variants: {},
+  plugins: [require("@tailwindcss/forms")],
+};
