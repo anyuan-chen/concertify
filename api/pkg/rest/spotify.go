@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
-	
+
 	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
@@ -47,5 +47,5 @@ func (api *ConcertifyAPI) SpotifyCallback(w http.ResponseWriter, r *http.Request
 	}
 	cookie := http.Cookie{Name: "session_id", Value: id, SameSite: http.SameSiteNoneMode, Secure: true}
 	http.SetCookie(w, &cookie)
-	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/list", http.StatusPermanentRedirect)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/select", http.StatusPermanentRedirect)
 }
