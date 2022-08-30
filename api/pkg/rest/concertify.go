@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/zmb3/spotify/v2"
+	"google.golang.org/api/youtube/v3"
 )
 
 func (api *ConcertifyAPI) GetAllPlaylists(w http.ResponseWriter, r *http.Request) {
@@ -64,11 +65,32 @@ func (api *ConcertifyAPI) ViewPlaylist(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	playlist_json, err := json.Marshal(playlist)
+	responses := make([][]*youtube.SearchResult, 0, len(playlist.Tracks.Tracks))
+	for _, track := range playlist.Tracks.Tracks {
+		trackName := track.Track.Name
+		searchListResponse, err := api.ConcertifyCore.GetYoutubeVideoFromSpotify(trackName, 3)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		responses = append(responses, searchListResponse.Items)
+	}
+
+	type ConcertifyPlaylist struct {
+		SearchResponse [][]*youtube.SearchResult `json:"youtube_search_response"`
+		Playlist       []spotify.PlaylistTrack   `json:"spotify_playlist"`
+	}
+
+	combined := &ConcertifyPlaylist{
+		SearchResponse: responses,
+		Playlist:       playlist.Tracks.Tracks,
+	}
+
+	combined_json, err := json.Marshal(combined)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(playlist_json)
+	w.Write(combined_json)
 }

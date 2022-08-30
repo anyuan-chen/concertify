@@ -4,10 +4,13 @@ import { motion } from "framer-motion";
 import useSWR from "swr";
 import SelectPlaylist from "../components/selectplaylist";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 const Select = () => {
+  const router = useRouter();
   const fetcher = (url, args) => fetch(url, args).then((res) => res.json());
   const [page, setPage] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
   const { data, error } = useSWR(
     [
       process.env.NEXT_PUBLIC_BACKEND_URL + `/api/playlists?page=${page}`,
@@ -18,6 +21,10 @@ const Select = () => {
     ],
     fetcher
   );
+  const SubmitSelect = async (id) => {
+    setSubmitting(true);
+    router.push(`/confirm?playlist=${id}`);
+  };
   if (error) return "An error has occurred.";
   if (!data) return "Loading...";
   return (
