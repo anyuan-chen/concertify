@@ -18,8 +18,8 @@ var GoogleConfig = &oauth2.Config{
 	Scopes:       []string{"https://www.googleapis.com/auth/youtubepartner"},
 }
 
-func (c *ConcertifyCore) GetYoutubeVideoFromSpotify(token *oauth2.Token, query string, numberOfVideos int) (*youtube.SearchListResponse, error) {
-	client, err := youtube.NewService(context.Background(), option.WithTokenSource(GoogleConfig.TokenSource(context.Background(), token)))
+func (c *ConcertifyCore) GetYoutubeVideoFromSpotify(query string, numberOfVideos int) (*youtube.SearchListResponse, error) {
+	client, err := youtube.NewService(context.Background())
 	if err != nil {
 		return nil, err
 	}

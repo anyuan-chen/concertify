@@ -26,7 +26,7 @@ const Home: NextPage = () => {
   };
   const router = useRouter();
   const login = () => {
-    router.push("http://127.0.0.1:8080/spotify/login");
+    router.push(process.env.NEXT_PUBLIC_BACKEND_URL + "/spotify/login");
   };
   return (
     <motion.div

@@ -27,13 +27,14 @@ func main() {
 	r.HandleFunc("/spotify/callback", concertify_api.SpotifyCallback)
 	r.HandleFunc("/youtube/login", concertify_api.YoutubeLogin)
 	r.HandleFunc("/youtube/callback", concertify_api.YoutubeCallback)
+	r.HandleFunc("/api/playlists", concertify_api.GetAllPlaylists)
 	http.Handle("/", &Server{r: r})
 	http.ListenAndServe(":8080", nil)
 }
 
 func (s *Server) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if origin := req.Header.Get("Origin"); origin != "" {
-		rw.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		rw.Header().Set("Access-Control-Allow-Origin", "http://127.0.0.1:3000")
 		rw.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		rw.Header().Set("Access-Control-Allow-Credentials", "true")
 		rw.Header().Set("Access-Control-Allow-Headers",
