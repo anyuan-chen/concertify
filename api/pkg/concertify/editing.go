@@ -19,7 +19,7 @@ var GoogleConfig = &oauth2.Config{
 }
 
 func (c *ConcertifyCore) GetYoutubeVideoFromSpotify(query string, numberOfVideos int) (*youtube.SearchListResponse, error) {
-	client, err := youtube.NewService(context.Background())
+	client, err := youtube.NewService(context.Background(), option.WithAPIKey(os.Getenv("YOUTUBE_API_KEY")))
 	if err != nil {
 		return nil, err
 	}

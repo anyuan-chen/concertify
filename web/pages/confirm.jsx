@@ -8,7 +8,7 @@ const Confirm = () => {
   const { data, error } = useSWR(
     [
       process.env.NEXT_PUBLIC_BACKEND_URL +
-        `/generate?playlist=${router.query.playlist}`,
+        `/api/generate?playlist=${router.query.playlist}`,
       {
         credentials: "include",
         mode: "cors",
@@ -16,9 +16,11 @@ const Confirm = () => {
     ],
     fetcher
   );
+  if (error) return "An error has occurred.";
+  if (!data) return "Loading...";
   return (
     <div>
-      <h1>Let's Confirm</h1>
+      <h1 className="font-medium text-6xl">Let's Confirm</h1>
     </div>
   );
 };
