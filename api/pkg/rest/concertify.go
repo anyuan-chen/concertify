@@ -50,19 +50,28 @@ func (api *ConcertifyAPI) GetAllPlaylists(w http.ResponseWriter, r *http.Request
 func (api *ConcertifyAPI) ViewPlaylist(w http.ResponseWriter, r *http.Request) {
 	session_id_cookie, err := r.Cookie("session_id")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Println(err)
+		http.Error(w, err.Error()+"no session id", http.StatusUnauthorized)
 		return
 	}
 	session_id := session_id_cookie.Value
 	spotify_token, err := api.Session_Manager.GetSpotifySession(session_id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		log.Println(err)
+		http.Error(w, err.Error()+"no spotify token", http.StatusUnauthorized)
 		return
 	}
-	playlist_id := spotify.ID(r.FormValue("playlist_id"))
+	playlist_id := spotify.ID(r.FormValue("playlist"))
 	playlist, err := api.ConcertifyCore.GetPlaylist(context.Background(), spotify_token, playlist_id)
 	if err != nil {
+		log.Println(err)
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error()+"no youtube token", http.StatusUnauthorized)
 		return
 	}
 	responses := make([][]*youtube.SearchResult, 0, len(playlist.Tracks.Tracks))
@@ -70,24 +79,32 @@ func (api *ConcertifyAPI) ViewPlaylist(w http.ResponseWriter, r *http.Request) {
 		trackName := track.Track.Name
 		searchListResponse, err := api.ConcertifyCore.GetYoutubeVideoFromSpotify(trackName, 3)
 		if err != nil {
+			log.Println(err)
+
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		responses = append(responses, searchListResponse.Items)
 	}
 
-	type ConcertifyPlaylist struct {
-		SearchResponse [][]*youtube.SearchResult `json:"youtube_search_response"`
-		Playlist       []spotify.PlaylistTrack   `json:"spotify_playlist"`
+	// type ConcertifyPlaylist struct {
+	// 	SearchResponse [][]*youtube.SearchResult `json:"youtube_search_response"`
+	// 	Playlist       []spotify.PlaylistTrack   `json:"spotify_playlist"`
+	// }
+	type ConcertifyPlaylistItem struct {
+		spotify.FullTrack
+		YoutubeSearchResponse []*youtube.SearchResult `json:"youtube_search_response"`
 	}
-
-	combined := &ConcertifyPlaylist{
-		SearchResponse: responses,
-		Playlist:       playlist.Tracks.Tracks,
+	combined := make([]ConcertifyPlaylistItem, 0, len(playlist.Tracks.Tracks))
+	for i, track := range playlist.Tracks.Tracks {
+		combined = append(combined, ConcertifyPlaylistItem{
+			FullTrack:             track.Track,
+			YoutubeSearchResponse: responses[i],
+		})
 	}
-
 	combined_json, err := json.Marshal(combined)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

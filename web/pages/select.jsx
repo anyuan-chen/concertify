@@ -10,7 +10,6 @@ const Select = () => {
   const router = useRouter();
   const fetcher = (url, args) => fetch(url, args).then((res) => res.json());
   const [page, setPage] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
   const { data, error } = useSWR(
     [
       process.env.NEXT_PUBLIC_BACKEND_URL + `/api/playlists?page=${page}`,
@@ -22,7 +21,6 @@ const Select = () => {
     fetcher
   );
   const SubmitSelect = async (id) => {
-    setSubmitting(true);
     router.push(`/confirm?playlist=${id}`);
   };
   if (error) return "An error has occurred.";
@@ -33,8 +31,8 @@ const Select = () => {
         <h1 className="font-medium text-6xl">Select your playlist</h1>
       </div>
       <div className="flex flex-wrap gap-8">
-        {data?.items?.map((playlist) => (
-          <button>
+        {data?.items?.map((playlist, index) => (
+          <button onClick={() => SubmitSelect(data.items[index].id)}>
             <SelectPlaylist
               src={playlist?.images[0]?.url}
               title={playlist?.name}

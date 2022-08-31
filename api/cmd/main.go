@@ -28,6 +28,7 @@ func main() {
 	r.HandleFunc("/youtube/login", concertify_api.YoutubeLogin)
 	r.HandleFunc("/youtube/callback", concertify_api.YoutubeCallback)
 	r.HandleFunc("/api/playlists", concertify_api.GetAllPlaylists)
+	r.HandleFunc("/api/generate", concertify_api.ViewPlaylist)
 	http.Handle("/", &Server{r: r})
 	http.ListenAndServe(":8080", nil)
 }

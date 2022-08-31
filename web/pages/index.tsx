@@ -53,12 +53,17 @@ const Home: NextPage = () => {
         <motion.img src="/images/concert2.png" variants={Element}></motion.img>
         <motion.img src="/images/concert3.png" variants={Element}></motion.img>
       </div>
-      <button
+      <motion.button
         className="self-start text-4xl px-8 py-4 font-medium border border-black"
+        whileHover={{
+          borderColor: "white",
+          backgroundColor: "black",
+          color: "white",
+        }}
         onClick={login}
       >
         Login With Spotify
-      </button>
+      </motion.button>
     </motion.div>
   );
 };
