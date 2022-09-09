@@ -2,14 +2,14 @@ package concertify
 
 import (
 	"context"
+	"os"
 
-	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/youtube/v3"
 )
 
-func (c *ConcertifyCore) CreateYoutubePlaylist(token *oauth2.Token) (string, error) {
-	client, err := youtube.NewService(context.Background(), option.WithTokenSource(GoogleConfig.TokenSource(context.Background(), token)))
+func (c *ConcertifyCore) CreateYoutubePlaylist() (string, error) {
+	client, err := youtube.NewService(context.Background(), option.WithAPIKey(os.Getenv("YOUTUBE_API_KEY")))
 	if err != nil {
 		return "", err
 	}
@@ -30,8 +30,8 @@ func (c *ConcertifyCore) CreateYoutubePlaylist(token *oauth2.Token) (string, err
 	return res.Id, nil
 }
 
-func (c *ConcertifyCore) InsertItemsIntoPlaylist(token *oauth2.Token, trackIds []string, id string) error {
-	client, err := youtube.NewService(context.Background(), option.WithTokenSource(GoogleConfig.TokenSource(context.Background(), token)))
+func (c *ConcertifyCore) InsertItemsIntoPlaylist(trackIds []string, id string) error {
+	client, err := youtube.NewService(context.Background(), option.WithAPIKey(os.Getenv("YOUTUBE_API_KEY")))
 	if err != nil {
 		return err
 	}
