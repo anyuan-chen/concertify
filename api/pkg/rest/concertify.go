@@ -77,7 +77,8 @@ func (api *ConcertifyAPI) ViewPlaylist(w http.ResponseWriter, r *http.Request) {
 	responses := make([][]*youtube.SearchResult, 0, len(playlist.Tracks.Tracks))
 	for _, track := range playlist.Tracks.Tracks {
 		trackName := track.Track.Name
-		searchListResponse, err := api.ConcertifyCore.GetYoutubeVideoFromSpotify(trackName, 3)
+		artistName := track.Track.Artists[0].Name
+		searchListResponse, err := api.ConcertifyCore.GetYoutubeVideoFromSpotify(trackName+" "+artistName, 3)
 		if err != nil {
 			log.Println(err)
 
@@ -110,4 +111,8 @@ func (api *ConcertifyAPI) ViewPlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(combined_json)
+}
+
+func (api *ConcertifyAPI) MakePlaylist(w http.ResponseWriter, r *http.Request){
+	
 }

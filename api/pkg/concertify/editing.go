@@ -31,8 +31,8 @@ func (c *ConcertifyCore) GetYoutubeVideoFromSpotify(query string, numberOfVideos
 	return res, nil
 }
 
-func (c *ConcertifyCore) GetYoutubeVideos(token *oauth2.Token, queries []string) ([]*youtube.SearchListResponse, error) {
-	client, err := youtube.NewService(context.Background(), option.WithTokenSource(GoogleConfig.TokenSource(context.Background(), token)))
+func (c *ConcertifyCore) GetYoutubeVideos( queries []string) ([]*youtube.SearchListResponse, error) {
+	client, err := youtube.NewService(context.Background(), option.WithAPIKey(os.Getenv("YOUTUBE_API_KEY")))
 	if err != nil {
 		return nil, err
 	}

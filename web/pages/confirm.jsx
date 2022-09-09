@@ -10,7 +10,19 @@ const Confirm = () => {
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [editingIdPlaylistItem, setEditingIdPlaylistItem] = useState(undefined);
-  const CreatePlaylist = async () => {};
+  const CreatePlaylist = async () => {
+    const res = await fetch(
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/create?playlist=${playlist}`,
+      {
+        method: "POST",
+        credentials: "include",
+        mode: "cors",
+      }
+    ).then((res) => res.json());
+    if (res.status === 200) {
+      router.push(`/success?playlist=${res.youtube_playlist_id}`);
+    }
+  };
   useEffect(() => {
     if (playlist) {
       for (let i = 0; i < playlist.length; i++) {
