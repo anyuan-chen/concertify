@@ -21,14 +21,21 @@ const Select = () => {
     fetcher
   );
   const SubmitSelect = async (id) => {
-    router.push(`/confirm?playlist=${id}`);
+    router.push(
+      process.env.NEXT_PUBLIC_BACKEND_URL + "/youtube/login?id=" + id
+    );
+    //router.push(`/confirm?playlist=${id}`);
   };
   if (error) return "An error has occurred.";
   if (!data) return "Loading...";
   return (
     <div className="flex flex-col gap-y-8">
-      <div className="flex">
+      <div className="flex flex-col gap-y-4">
         <h1 className="font-medium text-6xl">Select your playlist</h1>
+        <h1 className="text-xl text-grey-600">
+          You will be prompted to login to Youtube so we can get the right
+          videos for you.
+        </h1>
       </div>
       <div className="flex flex-wrap gap-8">
         {data?.items?.map((playlist, index) => (

@@ -2,14 +2,57 @@ import React from "react";
 import YoutubeVideoPreview from "./youtubeVideoPreview";
 import Checkbox from "../components/checkbox";
 import { motion } from "framer-motion";
-import parse from "html-react-parser";
 
-const EditPlaylistItem = ({ playlistItem, setEditing }) => {
+const EditPlaylistItem = ({
+  playlistItem,
+  setEditing,
+  editingId,
+  setPlaylistItem,
+  playlist,
+  setPlaylist,
+}) => {
   const [checkedId, setCheckedId] = React.useState(
     playlistItem.youtube_search_response[0].id.videoId
   );
   const [customUrl, setCustomUrl] = React.useState("");
-  const SaveAndExit = () => {
+  const SaveAndExit = async () => {
+    let newPlaylist;
+    if (customUrl !== "") {
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_BACKEND_URL + `/api/video?query=${customUrl}`,
+        {
+          credentials: "include",
+          mode: "cors",
+        }
+      );
+      const data = await res.json();
+      newPlaylist = [data, ...playlist].slice(0, newPlaylist.length - 1);
+    } else {
+      let editingIndex = 0;
+      for (let i = 0; i < playlist.length; i++) {
+        if (playlistItem.youtube_search_response[i].id.videoId === checkedId) {
+          editingIndex = i;
+        }
+      }
+      newPlaylist = [...playlistItem.youtube_search_response];
+      console.log(newPlaylist);
+      const tempPlaylistItem =
+        playlistItem.youtube_search_response[editingIndex];
+      newPlaylist[editingIndex] = playlistItem.youtube_search_response[0];
+      newPlaylist[0] = tempPlaylistItem;
+      console.log(newPlaylist);
+    }
+    setPlaylist(
+      playlist.map((item) => {
+        if (item.id === playlistItem.id) {
+          return {
+            ...item,
+            youtube_search_response: newPlaylist,
+          };
+        }
+        return item;
+      })
+    );
     setEditing(false);
   };
   if (playlistItem) {

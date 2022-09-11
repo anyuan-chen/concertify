@@ -47,3 +47,17 @@ func (c *ConcertifyCore) GetYoutubeVideos( queries []string) ([]*youtube.SearchL
 	}
 	return responses, nil
 }
+
+func (c *ConcertifyCore) GetVideoFromLink(ctx context.Context, token *oauth2.Token, videoUrl string) (*youtube.Video, error) {
+	client, err := youtube.NewService(ctx, option.WithTokenSource(GoogleConfig.TokenSource(ctx, token)))
+	if err != nil {
+		return nil, err
+	}
+	videoId := videoUrl[len("https://www.youtube.com/watch?v="):]
+	videoListCall := client.Videos.List([]string{"snippet", "contentDetails", "statistics"}).Id(videoId)
+	res, err := videoListCall.Do()
+	if err != nil {
+		return nil, err
+	}
+	return res.Items[0], nil
+}
