@@ -26,21 +26,23 @@ const EditPlaylistItem = ({
         }
       );
       const data = await res.json();
-      newPlaylist = [data, ...playlist].slice(0, newPlaylist.length - 1);
+      data.id = {
+        videoId: data.id,
+      };
+      newPlaylist = [data, ...playlistItem.youtube_search_response];
+      newPlaylist = newPlaylist.slice(0, newPlaylist.length - 1);
     } else {
       let editingIndex = 0;
-      for (let i = 0; i < playlist.length; i++) {
+      for (let i = 0; i < playlistItem.youtube_search_response.length; i++) {
         if (playlistItem.youtube_search_response[i].id.videoId === checkedId) {
           editingIndex = i;
         }
       }
       newPlaylist = [...playlistItem.youtube_search_response];
-      console.log(newPlaylist);
       const tempPlaylistItem =
         playlistItem.youtube_search_response[editingIndex];
       newPlaylist[editingIndex] = playlistItem.youtube_search_response[0];
       newPlaylist[0] = tempPlaylistItem;
-      console.log(newPlaylist);
     }
     setPlaylist(
       playlist.map((item) => {
