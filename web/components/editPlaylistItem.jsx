@@ -29,10 +29,8 @@ const EditPlaylistItem = ({
       data.id = {
         videoId: data.id,
       };
-      console.log(playlistItem.youtube_search_response);
       newPlaylist = [data, ...playlistItem.youtube_search_response];
       newPlaylist = newPlaylist.slice(0, newPlaylist.length - 1);
-      console.log(newPlaylist);
     } else {
       let editingIndex = 0;
       for (let i = 0; i < playlistItem.youtube_search_response.length; i++) {
