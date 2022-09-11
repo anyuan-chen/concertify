@@ -1,7 +1,13 @@
 import React from "react";
 import YoutubeVideoPreview from "./youtubeVideoPreview";
 
-const PlaylistItemPreview = ({ playlistItem, setEditing, setEditingId }) => {
+const PlaylistItemPreview = ({
+  playlistItem,
+  setEditing,
+  setEditingId,
+  editingTrigger,
+  setEditingTrigger,
+}) => {
   return (
     <div className="border border-black p-4  flex flex-col gap-y-8">
       <div className="flex gap-x-4 items-end">
@@ -28,7 +34,7 @@ const PlaylistItemPreview = ({ playlistItem, setEditing, setEditingId }) => {
         className="self-start text-xl underline"
         onClick={() => {
           setEditingId(playlistItem.id);
-          setEditing(true);
+          setEditingTrigger(!editingTrigger);
         }}
       >
         choose another performance

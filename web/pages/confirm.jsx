@@ -11,6 +11,7 @@ const Confirm = () => {
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [editingIdPlaylistItem, setEditingIdPlaylistItem] = useState(undefined);
+  const [editingTrigger, setEditingTrigger] = useState(false);
   const CreatePlaylist = async () => {
     const res = await fetch(
       process.env.NEXT_PUBLIC_BACKEND_URL + `/api/create`,
@@ -36,7 +37,7 @@ const Confirm = () => {
         }
       }
     }
-  }, [editingId]);
+  }, [editingId, editingTrigger]);
   useEffect(() => {
     const generatePlaylist = async () => {
       const params = new URLSearchParams(window.location.search);
@@ -78,6 +79,8 @@ const Confirm = () => {
                   playlistItem={playlistItem}
                   setEditing={setEditing}
                   setEditingId={setEditingId}
+                  setEditingTrigger={setEditingTrigger}
+                  editingTrigger={editingTrigger}
                   key={index}
                 ></PlaylistItemPreview>
               );
