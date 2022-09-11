@@ -5,17 +5,23 @@ const Success = () => {
   const [link, setLink] = useState("");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setLink(`https://www.youtube.com/playlist?list=${params.get("playlist")}`);
+    setLink(`youtube.com/playlist?list=${params.get("playlist")}`);
   }, []);
 
   return (
     <div className="flex flex-col gap-y-8">
       <h1 className="text-6xl font-medium">Here's your playlist</h1>
-      <div className="flex border border-black py-2 px-4 items-center justify-between">
-        <h1 className="text-5xl font-medium">{link}</h1>
+      <div className="flex border border-black py-4 px-4 items-center justify-between">
+        <a
+          href={"https://www." + link}
+          target="_blank"
+          className="text-5xl font-medium underline"
+        >
+          {link}
+        </a>
         <button
           onClick={() => {
-            navigator.clipboard.writeText(link);
+            navigator.clipboard.writeText("https://www." + link);
           }}
         >
           <img src="./images/clipboard-copy.svg"></img>

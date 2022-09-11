@@ -6,21 +6,25 @@ import { motion } from "framer-motion";
 import useSWR from "swr";
 
 const Confirm = () => {
+  const router = useRouter();
   const [playlist, setPlaylist] = useState(undefined);
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
   const [editingIdPlaylistItem, setEditingIdPlaylistItem] = useState(undefined);
   const CreatePlaylist = async () => {
     const res = await fetch(
-      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/create?playlist=${playlist}`,
+      process.env.NEXT_PUBLIC_BACKEND_URL + `/api/create`,
       {
         method: "POST",
         credentials: "include",
         mode: "cors",
+        body: JSON.stringify(playlist),
       }
-    ).then((res) => res.json());
+    );
+    const data = await res.json();
+    console.log(res.status);
     if (res.status === 200) {
-      router.push(`/success?playlist=${res.youtube_playlist_id}`);
+      router.push(`/success?playlist=${data.id}`);
     }
   };
   useEffect(() => {
@@ -57,6 +61,9 @@ const Confirm = () => {
         <EditPlaylistItem
           playlistItem={editingIdPlaylistItem}
           setEditing={setEditing}
+          editingId={editingId}
+          playlist={playlist}
+          setPlaylist={setPlaylist}
         ></EditPlaylistItem>
       )}
       {!editing && playlist && (
@@ -65,13 +72,13 @@ const Confirm = () => {
             className="flex flex-col gap-y-8"
             style={{ maxHeight: "60vh", overflowY: "scroll" }}
           >
-            {playlist.map((playlistItem) => {
+            {playlist.map((playlistItem, index) => {
               return (
                 <PlaylistItemPreview
                   playlistItem={playlistItem}
                   setEditing={setEditing}
                   setEditingId={setEditingId}
-                  key={playlistItem.id}
+                  key={index}
                 ></PlaylistItemPreview>
               );
             })}

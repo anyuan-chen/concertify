@@ -28,6 +28,7 @@ func (api *ConcertifyAPI) YoutubeLogin(w http.ResponseWriter, r *http.Request) {
 	randomizedState := make([]byte, 16)
 	rand.Read(randomizedState)
 	state["random"] = randomizedState
+	state["playlist_id"] = r.FormValue("id")
 	json, err := json.Marshal(state)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,10 +47,18 @@ func (api *ConcertifyAPI) YoutubeCallback(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Bad OAuth State", http.StatusInternalServerError)
 		return
 	}
-	// decoded_string, err := base64.URLEncoding.DecodeString(state.Value)
-	// if err != nil {
-	// 	http.Error(w, "Failed to decode"+err.Error(), http.StatusInternalServerError)
-	// }
+	data, err := base64.URLEncoding.DecodeString(state.Value)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	var state_data map[string]interface{}
+	err = json.Unmarshal(data, &state_data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	playlist_id := state_data["playlist_id"].(string)
 	token, err := GoogleConfig.Exchange(context.Background(), r.FormValue("code"))
 	if err != nil {
 		http.Error(w, "Failed to Retrieve Token"+err.Error(), http.StatusInternalServerError)
@@ -65,5 +74,5 @@ func (api *ConcertifyAPI) YoutubeCallback(w http.ResponseWriter, r *http.Request
 		http.Error(w, "Failed to Set Session", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, os.Getenv("FRONTEND_URL"), http.StatusPermanentRedirect)
+	http.Redirect(w, r, os.Getenv("FRONTEND_URL")+"/confirm?playlist="+playlist_id, http.StatusPermanentRedirect)
 }

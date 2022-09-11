@@ -28,6 +28,7 @@ const PlaylistItemPreview = ({ playlistItem, setEditing, setEditingId }) => {
         className="self-start text-xl underline"
         onClick={() => {
           setEditingId(playlistItem.id);
+          setEditing(true);
         }}
       >
         choose another performance

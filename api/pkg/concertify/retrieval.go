@@ -24,3 +24,4 @@ func (c *ConcertifyCore) GetPlaylist(ctx context.Context, token *oauth2.Token, p
 	}
 	return playlist, nil
 }
+
